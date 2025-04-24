@@ -81,7 +81,7 @@ After this you will need to initiate the repo
 ```
 mkdir /optee
 cd  optee
-repo init -u https://github.com/lennard2000/manifest.git -m wrapper_qemu.xml.xml && repo sync -j10
+repo init -u https://github.com/lennard2000/manifest.git -m wrapper_qemu.xml && repo sync -j10
 ```
 The next step is to download the toolchains required for OP-TEE
 ```

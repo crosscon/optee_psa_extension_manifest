@@ -32,6 +32,6 @@
              clone-depth="1"/>
 
     <project path="optee_examples" name="lennard2000/optee_examples.git"/>
-    <project path="optee_os"             name="lennard2000/optee_os/tree/syscalls.git" />
+    <project path="optee_os"          revision="syscalls"   name="lennard2000/optee_os.git" />
 
 </manifest>
