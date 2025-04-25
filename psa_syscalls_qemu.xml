@@ -12,6 +12,11 @@
     <project path="build" name="OP-TEE/build.git">
         <linkfile src="qemu_v8.mk" dest="build/Makefile"/>
     </project>
+    <remove-project name="OP-TEE/optee_test.git" />
+    <!-- after this commit some new attributes were added which would need a merge with optee_os    -->
+    <project name="OP-TEE/optee_test.git"
+             path="optee_test"
+             revision="5fae7bdb151528dfe561fc4585a11843f12ed035" />
 
     <!-- Misc gits -->
     <project path="optee_rust" name="apache/incubator-teaclave-trustzone-sdk.git"
