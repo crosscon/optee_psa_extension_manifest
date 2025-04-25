@@ -292,6 +292,7 @@ make run
 - To run the project without compiling (only use after compiling at least once):
 ```sh
 make run-only
+```
 ```sh
 make run
 xtest
@@ -330,20 +331,21 @@ Other function calls can be added quite easily.
 Here is a step-by-step instruction on how to add them.
 
 ### Adding new function calls
-#### Add the function header to `lib/libutee/include/utee_syscalls.h` with the prefix `_utee_cryp`
-#### Add the function header to `lib/libutee/include/tee_internal_api.h` with the prefix `__GP11_` this function will be exposed to the TA
-#### Expose the function in `lib/libutee/include/tee_api_compat.h`
+#### Add the syscall and expose the function
+- Add the function header to `lib/libutee/include/utee_syscalls.h` with the prefix `_utee_cryp`
+- Add the function header to `lib/libutee/include/tee_internal_api.h` with the prefix `__GP11_` this function will be exposed to the TA
+- Expose the function in `lib/libutee/include/tee_api_compat.h`
 ```
 #define exposedFunctionName __GP11_functionNameFromStepBefore
 ```
 > This maps the exposed function name to the correct internal function.
-#### Implement the mapping in `lib/libutee/tee_api_objects.c`
+- Implement the mapping in `lib/libutee/tee_api_objects.c`
 ```
 returntype __GP11_functionName(params) {
     return _utee_cryp_functionName(params);
 }
 ```
-#### Add a syscall number in `lib/libutee/include/tee_syscall_numbers.h`
+- Add a syscall number in `lib/libutee/include/tee_syscall_numbers.h`
 ```
 #define internalName 99
 ```
