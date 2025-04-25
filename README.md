@@ -14,7 +14,7 @@ In this Branch PSA Crypto and Op-TEE are combined through a wrapper, which maps 
 These are then directed normally through the Op-TEE architecture resolved through OP-TEE library methods.
 
 
-# Setup
+## Setup
 
 This Project requires the same setup as normal OP-TEE (Keychain, setup, quemo...).
 here is a setup used for optee on ubuntu 22.04 with a quemo setup
@@ -91,7 +91,7 @@ make -j$(nproc) check
 ```
 After this the Setup should be completed.
 
-# Commands
+## Commands
 
 This Projects uses the default OP-TEE commands.
 Here is a list of commands used to compile and run the Project
@@ -108,7 +108,7 @@ make run-only
 ```
 starts the project without compiling. You need to compile the project before starting it though
 
-# Testing
+## Testing
 To test the project you simply need to compile the project and start it.
 This already runs the default OP-TEE tests, so after successfully compiling we can assume that the OP-TEE implementation works correctly.
 ```
@@ -135,7 +135,7 @@ xtest <test_number>
 ```
 
 
-# Required changes to PSA files
+## Required changes to PSA files
 
 here is a list of methods that need to be added to a PSA file for it to correctly work with this project
 ```
@@ -165,11 +165,11 @@ The function void TA_CloseSessionEntryPoint should at least clear the initializa
 The function TEE_Result TA_InvokeCommandEntryPoint is called when a command is invoked.
 This function should contain a call to the correct PSACrypto function or to functions containing them.
 
-# Limitations
+## Limitations
 The wrapper only supports one operation at a time, when a new initialization function for a PSA function is called the old / current operation will be **cleared**, whether it is finished or not.
 To invoke an Trusted application a host with the same name and the correct linking needs to be present.
 
-# Dependencies
+## Dependencies
 This project uses OP-TEE version 4.2.0
 The mbedtls version used for the PSA implementation is 3.6.1
 No other libraries are required
@@ -181,7 +181,7 @@ For compipling  GNU or another C compiler is required,
 This Project combines the PSA Crypto implementation of mbedtls with OP-TEE.
 In this Branch, PSA Crypto and Op-TEE are combined through a trapdoor design, which passes PSA function calls in the trusted application to their respective PSA functions in OP-TEE OS.
 
-# Setup
+## Setup
 
 This Project requires the same setup as normal OP-TEE (Keychain, setup, qemu...).
 here is a setup used for optee on ubuntu 22.04 with a qemu setup
@@ -262,7 +262,7 @@ make -j$(nproc) check
 ```
 After this, the Setup should be completed.
 
-# Commands
+## Commands
 
 This Projects uses the default OP-TEE commands.
 Here is a list of commands used to compile and run the Project
@@ -306,7 +306,7 @@ xtest <test_number>
 ```
 
 
-# Required changes to PSA files
+## Required changes to PSA files
 
 here is a list of methods that need to be added to a PSA file for it to correctly work with this project
 ```
@@ -325,12 +325,12 @@ The function void TA_CloseSessionEntryPoint should clear the initializations or 
 The function TEE_Result TA_InvokeCommandEntryPoint is called when a command is invoked.
 This function should contain a call to the correct PSACrypto function or to functions containing them.
 
-# Limitations
+## Limitations
 This approach includes all functions inside psa_crypto.c in the mbedtls library.
 Other function calls can be added quite easily.
 Here is a step-by-step instruction on how to add them.
 
-# Adding new function calls
+### Adding new function calls
 Go to the file lib/libutee/include/utee_syscalls.h and add the header of the function, it should habe the prefix "_utee_cryp"
 
 Go to the file lib/libutee/include/tee_internal_api.h and add the header of the function with the prefix "__GP11_" this will be exposed to the TA
@@ -381,7 +381,7 @@ returnType functionName_proxy(params) {
 }
 ```
 
-# Dependencies
+## Dependencies
 This project uses OP-TEE version 4.2.0
 The mbedtls version used for the PSA implementation is 3.6.1
 No other libraries are required
