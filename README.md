@@ -101,7 +101,7 @@ After this the Setup should be completed.
 This Project uses the default OP-TEE commands.
 
 Here is a list of commands used to compile and run the Project
-- To compile the project
+- To compile the project:
 ```sh
 make
 ```
@@ -281,7 +281,7 @@ After this the Setup should be completed.
 This Project uses the default OP-TEE commands.
 
 Here is a list of commands used to compile and run the Project
-- To compile the project
+- To compile the project:
 ```sh
 make
 ```
