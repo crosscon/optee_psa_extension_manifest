@@ -297,7 +297,8 @@ make run-only
 make run
 xtest
 ```
-This runs xTest to verify the functionality of OP-TEE (for this config this should not fail, since OP-TEE OS isn't altered)
+This runs xTest to verify the functionality of OP-TEE (for this config this **could fail**, since we use an altered version of OP-TEE OS)
+> We use a fork of OP-TEE Test to mitigate the risk of invalid implementations of OP-TEE OS and OP-TEE Test
 You can also run specific tests by running
 ```sh
 xtest <test_number>
