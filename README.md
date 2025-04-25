@@ -351,7 +351,7 @@ returntype __GP11_functionName(params) {
 #define internalName 99
 ```
 > (Pick the next available number, and update `TEE_SCN_MAX` accordingly.)
-- Register the syscall in ` lib/libutee/include/utee_syscalls_asm.S`
+- Register the syscall in `lib/libutee/include/utee_syscalls_asm.S`
 ```
 UTEE_SYSCALL _utee_cryp_functionName   , nameFrom_lib/libutee/include/tee_syscall_numbers.h, numberOfArguments
 ```
