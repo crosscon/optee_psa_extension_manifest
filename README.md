@@ -14,11 +14,13 @@ In this Branch PSA Crypto and Op-TEE are combined through a wrapper, which maps 
 These are then directed normally through the Op-TEE architecture resolved through OP-TEE library methods.
 
 
-# Setup
+## Setup
 
-This Project requires the same setup as normal OP-TEE (Keychain, setup, quemo...).
-here is a setup used for optee on ubuntu 22.04 with a quemo setup
-```
+This Project requires the same setup as normal OP-TEE (Keychain, setup, QEMU...).
+here is a setup used for OP-TEE on ubuntu 22.04 with a QEMU setup
+### Install Dependecies
+
+```sh
 apt update && apt upgrade -y
  
 apt install -y \
@@ -75,56 +77,57 @@ apt install -y \
     xterm \
     xz-utils \
     zlib1g-dev
-    
-    curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo
 ```
-After this you will need to initiate the repo
+### Install the repo tool
+```sh
+curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo
 ```
+### Initialize the OP-TEE Repo
+
+```sh
 mkdir optee
 cd  optee
 repo init -u https://github.com/lennard2000/manifest.git -m wrapper_qemu.xml && repo sync -j10
 ```
-The next step is to download the toolchains required for OP-TEE
-```
+### Download the OP-TEE Toolchains
+```sh
 cd build
 make -j3 toolchains
 make -j$(nproc) check
 ```
 After this the Setup should be completed.
 
-# Commands
+## Commands
 
-This Projects uses the default OP-TEE commands.
+This Project uses the default OP-TEE commands.
+
 Here is a list of commands used to compile and run the Project
-```
+- To compile the project:
+```sh
 make
-``` 
-This command compiles the project
 ```
+- To compile and run the project (using QEMU):
+```sh
 make run
 ```
-compiles the project and runs it (using Quemo if on ubuntu)
-```
+- To run the project without compiling (only use after compiling at least once):
+```sh
 make run-only
 ```
-Starts the project without compiling. You need to compile the project before starting it though
-> these Commands only work in the `build` directory, so before executing them `cd optee/buid` may need to be executed 
-
-# Testing
-To test the project you simply need to compile the project and start it.
-This already runs the default OP-TEE tests, so after successfully compiling we can assume that the OP-TEE implementation works correctly.
-```
+> these Commands only work in the `build` directory, so before executing them `cd optee/buid` may need to be executed
+## Testing
+To test the project, simply compile and start it. This will automatically run the default OP-TEE tests. If compilation and basic tests succeed, you can assume the OP-TEE implementation is working.
+```sh
 make
 ```
-To make sure OP-TEE works correctly with PSACrypto you need to run the project and execute the example Trusted applications
-```
+To verify OP-TEE with PSA Crypto, run the project and execute the example Trusted Applications:
+```sh
 make run
 optee_example_acipher
 optee_example_aes
 optee_example_hello_world
 ```
-These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository, slightly altered to conform to OP-TEE .
-These calls should not have an output, since they validate themselves using constant values. In case of mismatches or errors in the setup / functionality, an error will be thrown
+*Note*: These commands correspond to the default OP-TEE examples, but now include PSA tests from the mbedtls repository, slightly modified for OP-TEE. These calls should not produce output; they perform self-validation using constant values. Errors or mismatches will trigger error messages.
 
 > output, the command line of the normal world after executing the commands
  ```
@@ -136,17 +139,16 @@ These calls should not have an output, since they validate themselves using cons
 make run
 xtest
 ```
-This runs xTest to verify the functionality of OP-TEE (for this config this should not fail, since OP-TEE OS isn't altered)
-You can also run specific tests by running
-```
+This runs the OP-TEE xtest suite. You can also run specific tests by specifying the test number:
+```sh
 xtest <test_number>
 ```
 
 
-# Required changes to PSA files
+## Required changes to PSA files
 
-here is a list of methods that need to be added to a PSA file for it to correctly work with this project
-```
+To ensure compatibility with this project, your Trusted Application (TA) source file must implement the following functions:
+```c
 TEE Result TA_CreateEntryPoint(void)
 TEE Result TA_OpenSessionEntryPoint(uint32 tparam types, TEE Param params[4], void **sess ctx) 
 void TA_CloseSessionEntryPoint(void *sess ctx)
@@ -155,9 +157,11 @@ TEE_Result TA_InvokeCommandEntryPoint(void *session_id,
                                       uint32_t parameters_type,
                                       TEE_Param parameters[4])
 ```
-The function  TA_CreateEntryPoint is called when the entry point is created, for this project it doesn't need to do anything.
-The  TA_OpenSessionEntryPoint function is called when a session opens, it should at least contain the following function calls
-```
+- TA_CreateEntryPoint
+> Called when the TA entry point is created. For this project, no initialization is needed here.
+- TA_OpenSessionEntryPoint
+> Called when a new session is opened. This function must initialize both the wrapper and PSA Crypto. At minimum, it should include:
+```c
 TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types, TEE_Param params[4], void **sess_ctx) {
     create_session(sess_ctx);
 
@@ -167,21 +171,23 @@ TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types, TEE_Param params[4], v
     }
     return TEE_SUCCESS;
 }
-``` 
-These calls initialize the wrapper and PSACrypto.
-The function void TA_CloseSessionEntryPoint should at least clear the initialization of the wrapper.
-The function TEE_Result TA_InvokeCommandEntryPoint is called when a command is invoked.
-This function should contain a call to the correct PSACrypto function or to functions containing them.
+```
+- TA_CloseSessionEntryPoint
+> Called when a session is closed. This should clean up any wrapper or session-specific resources.
+- TA_InvokeCommandEntryPoint
+> Called whenever a command is invoked by the host application. This function should call the relevant PSA Crypto function or your own wrapper functions containing those calls.
 
-# Limitations
-The wrapper only supports one operation at a time, when a new initialization function for a PSA function is called the old / current operation will be **cleared**, whether it is finished or not.
-To invoke an Trusted application a host with the same name and the correct linking needs to be present.
+## Limitations
+- *Single Operation Support*
+> The wrapper only supports one operation at a time, when a new initialization function for a PSA function is called the old / current operation will be **cleared**, regardless of completion status.
+- Application Invocation
+> To invoke a Trusted Application, a host application with the same name and correct linking must be present.
 
-# Dependencies
+## Dependencies
 This project uses OP-TEE version 4.2.0
 The mbedtls version used for the PSA implementation is 3.6.1
 No other libraries are required
-For compipling  GNU or another C compiler is required,
+For compiling  GNU or another C compiler is required
 
 # PSA Syscalls qemu
 ## Combination of OP-TEE and PSACrypto through syscalls
@@ -189,15 +195,17 @@ For compipling  GNU or another C compiler is required,
 This Project combines the PSA Crypto implementation of mbedtls with OP-TEE.
 In this Branch, PSA Crypto and Op-TEE are combined through a trapdoor design, which passes PSA function calls in the trusted application to their respective PSA functions in OP-TEE OS.
 
-# Setup
+## Setup
 
 This Project requires the same setup as normal OP-TEE (Keychain, setup, qemu...).
-here is a setup used for optee on ubuntu 22.04 with a qemu setup
+here is a setup used for OP-TEE on ubuntu 22.04 with a qemu setup
 
 This setup is mostly the same as for wrapper qemu, with some slight changes
 here is the complete setup
 
-```
+### Install Dependecies
+
+```sh
 apt update && apt upgrade -y
  
 apt install -y \
@@ -254,77 +262,60 @@ apt install -y \
     xterm \
     xz-utils \
     zlib1g-dev
-    
-    curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo
 ```
-After this you will need to initiate the repo
+### Install the repo tool
+```sh
+curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo
 ```
+### Initialize the OP-TEE Repo
+
+```sh
 mkdir optee
 cd  optee
 repo init -u https://github.com/lennard2000/manifest.git -m psa_syscalls_qemu.xml && repo sync -j10
 ```
-The next step is to download the toolchains required for OP-TEE
-```
+### Download the OP-TEE Toolchains
+```sh
 cd build
 make -j3 toolchains
 make -j$(nproc) check
 ```
-After this, the Setup should be completed.
+After this the Setup should be completed.
 
-# Commands
+## Commands
 
-This Projects uses the default OP-TEE commands.
+This Project uses the default OP-TEE commands.
+
 Here is a list of commands used to compile and run the Project
-```
+- To compile the project:
+```sh
 make
-``` 
-This command compiles the project
 ```
+- To compile and run the project (using QEMU):
+```sh
 make run
 ```
-compiles the project and runs it (using Quemo if on ubuntu)
-```
+- To run the project without compiling (only use after compiling at least once):
+```sh
 make run-only
 ```
-Starts the project without compiling. You need to compile the project before starting it though
 > these Commands only work in the `build` directory, so before executing them `cd optee/buid` may need to be executed
-# Testing
-To test the project you simply need to compile the project and start it.
-This already runs the default OP-TEE tests, so after successfully compiling we can assume that the OP-TEE implementation works correctly.
-```
-make
-```
-To make sure OP-TEE works correctly with PSACrypto you need to run the project and execute the example Trusted applications
-```
-make run
-optee_example_acipher
-optee_example_aes
-optee_example_hello_world
-```
-These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository, slightly altered to conform to OP-TEE .
-These calls should not have an output, since they validate themselves using constant values. In case of mismatches or errors in the setup / functionality, an error will be thrown
-
-> output, the command line of the normal world after executing the commands
- ```
-# optee_example_aes 
-# optee_example_acipher
-# optee_example_hello_world
- ```
-```
+```sh
 make run
 xtest
 ```
-This runs xTest to verify the functionality of OP-TEE (for this config this should not fail, since OP-TEE OS isn't altered)
+This runs xTest to verify the functionality of OP-TEE (for this config this **could fail**, since we use an altered version of OP-TEE OS)
+> We use a fork of OP-TEE Test to mitigate the risk of invalid implementations of OP-TEE OS and OP-TEE Test
 You can also run specific tests by running
-```
+```sh
 xtest <test_number>
 ```
 
 
-# Required changes to PSA files
+## Required changes to PSA files
 
 here is a list of methods that need to be added to a PSA file for it to correctly work with this project
-```
+```c
 TEE Result TA_CreateEntryPoint(void)
 TEE Result TA_OpenSessionEntryPoint(uint32 tparam types, TEE Param params[4], void **sess ctx) 
 void TA_CloseSessionEntryPoint(void *sess ctx)
@@ -333,73 +324,67 @@ TEE_Result TA_InvokeCommandEntryPoint(void *session_id,
                                       uint32_t parameters_type,
                                       TEE_Param parameters[4])
 ```
-The function  TA_CreateEntryPoint is called when the entry point is created, for this project it doesn't need to do anything.
-The  TA_OpenSessionEntryPoint function is called when a session opens, it should contain specific calls or initializations required during runtime of this TA
+- TA_CreateEntryPoint:
+> Called when the TA entry point is created; no special initialization is needed for this project.
+- TA_OpenSessionEntryPoint:
+> Called when a session is opened. Initialize anything required for your TA here.
+- TA_CloseSessionEntryPoint:
+> Called when a session is closed. Clean up resources initialized in TA_OpenSessionEntryPoint.
+- TA_InvokeCommandEntryPoint:
+>  Called when a command is invoked; this should dispatch to the correct PSA Crypto functions or wrappers.
 
-The function void TA_CloseSessionEntryPoint should clear the initializations or setup executed in TA_OpenSessionEntryPoint.
-The function TEE_Result TA_InvokeCommandEntryPoint is called when a command is invoked.
-This function should contain a call to the correct PSACrypto function or to functions containing them.
-
-# Limitations
+## Limitations
 This approach includes all functions inside psa_crypto.c in the mbedtls library.
 Other function calls can be added quite easily.
 Here is a step-by-step instruction on how to add them.
 
-# Adding new function calls
-Go to the file lib/libutee/include/utee_syscalls.h and add the header of the function, it should habe the prefix "_utee_cryp"
-
-Go to the file lib/libutee/include/tee_internal_api.h and add the header of the function with the prefix "__GP11_" this will be exposed to the TA
-
-Go to the file lib/libutee/include/tee_api_compat.h and add the following line "#define exposedFunctionName __GP11_functionNameFromStepBefore" with this line exposedFunctionName will be exposed to the TA and point to __GP11_functionNameFromStepBefore
-
-Go to the file lib/libutee/tee_api_objects.c and add the following
+### Adding new function calls
+#### Add the syscall and expose the function
+- Add the function header to `lib/libutee/include/utee_syscalls.h` with the prefix `_utee_cryp`
+- Add the function header to `lib/libutee/include/tee_internal_api.h` with the prefix `__GP11_` this function will be exposed to the TA
+- Expose the function in `lib/libutee/include/tee_api_compat.h`
+```
+#define exposedFunctionName __GP11_functionNameFromStepBefore
+```
+> This maps the exposed function name to the correct internal function.
+- Implement the mapping in `lib/libutee/tee_api_objects.c`
 ```
 returntype __GP11_functionName(params) {
     return _utee_cryp_functionName(params);
 }
 ```
-This will map the exposed function to the syscall we will define now
-Go to the file lib/libutee/include/tee_syscall_numbers.h and add a syscall number, just pick the next number
-the added line should look like this 
+- Add a syscall number in `lib/libutee/include/tee_syscall_numbers.h`
 ```
 #define internalName 99
 ```
-remember to increase the TEE_SCN_MAX after adding syscalls here
-
-Go to the file lib/libutee/include/utee_syscalls_asm.S and add the syscall like this
+> (Pick the next available number, and update `TEE_SCN_MAX` accordingly.)
+- Register the syscall in `lib/libutee/include/utee_syscalls_asm.S`
 ```
 UTEE_SYSCALL _utee_cryp_functionName   , nameFrom_lib/libutee/include/tee_syscall_numbers.h, numberOfArguments
 ```
-At this point we already added the syscalls and exposed the function to the TA's.
-Now we add the code so it is forwarded to PSA
+#### Forward the syscall to PSA in the OP-TEE OS core:
 
-Go to the file core/include/tee/tee_svc_cryp.h and add the header of the function with a "syscall_cryp_" prefix
-
-Go to the file core/kernel/scall.c and add the following line 
-```
-SYSCALL_ENTRY(syscall_cryp_functionName),
-```
-
-Now we add the last headers for the function to core/include/crypto/crypto.h with the suffix "_proxy"
-
-Now go to the file core/tee/tee_svc_cryp.c and implement the "syscall_cryp_functionName" function here to call the "functionName_proxy" function
+- Add the header to `core/include/tee/tee_svc_cryp.h` with the prefix `syscall_cryp_`
+- Register the syscall in `core/kernel/scall.c`:
+> `SYSCALL_ENTRY(syscall_cryp_functionName)`
+- Add the header for the proxy function in `core/include/crypto/crypto.h` with the suffix `_proxy`
+- Implement the syscall in `core/tee/tee_svc_cryp.c`:
 ```
 returnType syscall_cryp_functionName(params) {
     return functionName_proxy(params);
 }
 ```
-The final step is to go to file lib/libmbedtls/core/psa_crypto.c and add an implemetation of the functionName_proxy function which calls the PSA function
-
+- Implement the proxy in `lib/libmbedtls/core/psa_crypto.c`
 ```
 returnType functionName_proxy(params) {
     return PSA_function(params);
 }
 ```
 
-# Dependencies
+## Dependencies
 This project uses OP-TEE version 4.2.0
 The mbedtls version used for the PSA implementation is 3.6.1
 No other libraries are required
-For compipling  GNU or another C compiler is required,
+For compiling  GNU or another C compiler is required,
 
 [manifests]: https://optee.readthedocs.io/en/latest/building/gits/build.html#manifests
