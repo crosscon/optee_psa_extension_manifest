@@ -57,6 +57,7 @@ apt install -y \
     libusb-1.0-0-dev \
     make \
     mtools \
+    netcat \
     ninja-build \
     python3-cryptography \
     python3-pip \
@@ -79,7 +80,7 @@ apt install -y \
 ```
 After this you will need to initiate the repo
 ```
-mkdir /optee
+mkdir optee
 cd  optee
 repo init -u https://github.com/lennard2000/manifest.git -m wrapper_qemu.xml && repo sync -j10
 ```
@@ -106,7 +107,8 @@ compiles the project and runs it (using Quemo if on ubuntu)
 ```
 make run-only
 ```
-starts the project without compiling. You need to compile the project before starting it though
+Starts the project without compiling. You need to compile the project before starting it though
+> these Commands only work in the `build` directory, so before executing them `cd optee/buid` may need to be executed 
 
 # Testing
 To test the project you simply need to compile the project and start it.
@@ -117,13 +119,19 @@ make
 To make sure OP-TEE works correctly with PSACrypto you need to run the project and execute the example Trusted applications
 ```
 make run
-acipher
-aes
-hello_world
+optee_example_acipher
+optee_example_aes
+optee_example_hello_world
 ```
-These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository,  slightly altered to conform to OP-TEE .
-These calls should not have an output, since they validate themself using constant values. In case of mismatches or errors in the setup / functionality an error will be thrown
+These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository, slightly altered to conform to OP-TEE .
+These calls should not have an output, since they validate themselves using constant values. In case of mismatches or errors in the setup / functionality, an error will be thrown
 
+> output, the command line of the normal world after executing the commands
+ ```
+# optee_example_aes 
+# optee_example_acipher
+# optee_example_hello_world
+ ```
 ```
 make run
 xtest
@@ -228,6 +236,7 @@ apt install -y \
     libusb-1.0-0-dev \
     make \
     mtools \
+    netcat \
     ninja-build \
     python3-cryptography \
     python3-pip \
@@ -250,7 +259,7 @@ apt install -y \
 ```
 After this you will need to initiate the repo
 ```
-mkdir /optee
+mkdir optee
 cd  optee
 repo init -u https://github.com/lennard2000/manifest.git -m psa_syscalls_qemu.xml && repo sync -j10
 ```
@@ -277,8 +286,8 @@ compiles the project and runs it (using Quemo if on ubuntu)
 ```
 make run-only
 ```
-starts the project without compiling. You need to compile the project before starting it though
-
+Starts the project without compiling. You need to compile the project before starting it though
+> these Commands only work in the `build` directory, so before executing them `cd optee/buid` may need to be executed
 # Testing
 To test the project you simply need to compile the project and start it.
 This already runs the default OP-TEE tests, so after successfully compiling we can assume that the OP-TEE implementation works correctly.
@@ -288,13 +297,19 @@ make
 To make sure OP-TEE works correctly with PSACrypto you need to run the project and execute the example Trusted applications
 ```
 make run
-acipher
-aes
-hello_world
+optee_example_acipher
+optee_example_aes
+optee_example_hello_world
 ```
-These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository,  slightly altered to conform to OP-TEE .
-These calls should not have an output, since they validate themself using constant values. In case of mismatches or errors in the setup / functionality an error will be thrown
+These are the same names as the default OP-TEE examples, but contain the PSA test contained in the mbedtls repository, slightly altered to conform to OP-TEE .
+These calls should not have an output, since they validate themselves using constant values. In case of mismatches or errors in the setup / functionality, an error will be thrown
 
+> output, the command line of the normal world after executing the commands
+ ```
+# optee_example_aes 
+# optee_example_acipher
+# optee_example_hello_world
+ ```
 ```
 make run
 xtest
