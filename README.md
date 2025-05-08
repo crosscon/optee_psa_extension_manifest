@@ -123,18 +123,230 @@ make
 To verify OP-TEE with PSA Crypto, run the project and execute the example Trusted Applications:
 ```sh
 make run
-optee_example_acipher
-optee_example_aes
-optee_example_hello_world
+optee_example_psa_cipher
+optee_example_psa_hash
+optee_example_psa_mac
 ```
 *Note*: These commands correspond to the default OP-TEE examples, but now include PSA tests from the mbedtls repository, slightly modified for OP-TEE. These calls should not produce output; they perform self-validation using constant values. Errors or mismatches will trigger error messages.
 
-> output, the command line of the normal world after executing the commands
+### Expected normal world output
  ```
-# optee_example_aes 
-# optee_example_acipher
-# optee_example_hello_world
+# optee_example_psa_cipher 
+PSA cipher example with wrapper ran successfully.
+# optee_example_psa_hash 
+PSA hash with wrapper ran successfully.
+# optee_example_psa_mac 
+PSA mac with wrapper ran successfully.
  ```
+### Expected secure world output
+> some values may change since some key generation is based on random values
+<details>
+<summary>Expected output of the optee_example_psa_cipher</summary>
+
+```
+D/TC:? 0 tee_ta_init_pseudo_ta_session:303 Lookup pseudo TA 3a2f8978-5dc0-11e8-9c2d-fa7ae01bbebc
+D/TC:? 0 tee_ta_init_pseudo_ta_session:315 Open system.pta
+D/TC:? 0 tee_ta_init_pseudo_ta_session:330 system.pta : 3a2f8978-5dc0-11e8-9c2d-fa7ae01bbebc
+D/TC:? 0 tee_ta_init_session_with_context:557 Re-open trusted service 3a2f8978-5dc0-11e8-9c2d-fa7ae01bbebc
+D/TC:? 0 tee_ta_invoke_command:798 Error: ffff000a of 4
+D/TC:? 0 tee_ta_close_session:460 csess 0xf60c7ec0 id 1
+D/TC:? 0 tee_ta_close_session:479 Destroy session
+D/TC:0 0 periodic_callback:136 seconds 15 millis 68 count 15
+D/TC:0 0 periodic_callback:136 seconds 16 millis 68 count 16
+D/TC:? 0 tee_ta_close_session:460 csess 0xf60c93b0 id 2
+D/TC:? 0 tee_ta_close_session:479 Destroy session
+D/TC:0   periodic_callback:136 seconds 17 millis 68 count 17
+D/TC:0   periodic_callback:136 seconds 18 millis 68 count 18
+D/TC:? 0 tee_ta_init_pseudo_ta_session:303 Lookup pseudo TA 7566754d-6889-4873-b94c-eaeadb7ff795
+D/TC:? 0 ldelf_load_ldelf:110 ldelf load address 0x40007000
+D/LD:  ldelf:142 Loading TS 7566754d-6889-4873-b94c-eaeadb7ff795
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 7566754d-6889-4873-b94c-eaeadb7ff795 (early TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 7566754d-6889-4873-b94c-eaeadb7ff795 (Secure Storage TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 7566754d-6889-4873-b94c-eaeadb7ff795 (REE)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0
+D/TC:0   periodic_callback:136 seconds 19 millis 68 count 19
+D/LD:  ldelf:176 ELF (7566754d-6889-4873-b94c-eaeadb7ff795) at 0x40060000
+I/TA: cipher encrypt/decrypt AES CBC no padding:
+I/TA: verify_key_size_by_type TEE_Type is: 2684354576
+I/TA: key_size is 256
+I/TA: ���yU6x)�r?����
+I/TA: cipher_encrypt
+I/TA: ��g���
+            �@Ÿ��
+I/TA: cipher_decrypt
+I/TA: ���yU6x)�r?����
+I/TA: first part finished
+I/TA: 	success!
+I/TA: cipher encrypt/decrypt AES CBC PKCS7 multipart:
+I/TA: verify_key_size_by_type TEE_Type is: 2684354576
+I/TA: key_size is 256
+I/TA: cipher_encrypt
+I/TA: cipher_decrypt
+I/TA: 	success!
+I/TA: cipher encrypt/decrypt AES CTR multipart:
+I/TA: G
+I/TA: verify_key_size_by_type TEE_Type is: 2684354576
+I/TA: key_size is 256
+I/TA: cipher_encrypt
+I/TA: cipher_decrypt
+I/TA: G
+I/TA: 
+I/TA: G
+I/TA: 	success!
+D/TC:? 0 tee_ta_close_session:460 csess 0xf60c7ad0 id 4
+D/TC:? 0 tee_ta_close_session:479 Destroy session
+D/TC:? 0 destroy_context:318 Destroy TA ctx (0xf60c7a70)
+```
+</details>
+<details>
+<summary>Expected output of the optee_example_psa_hash</summary>
+
+```
+D/TC:? 0 tee_ta_init_pseudo_ta_session:303 Lookup pseudo TA 3ea87968-863c-41fe-8053-284ced758477
+D/TC:? 0 ldelf_load_ldelf:110 ldelf load address 0x40007000
+D/LD:  ldelf:142 Loading TS 3ea87968-863c-41fe-8053-284ced758477
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 3ea87968-863c-41fe-8053-284ced758477 (early TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 3ea87968-863c-41fe-8053-284ced758477 (Secure Storage TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 3ea87968-863c-41fe-8053-284ced758477 (REE)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0
+D/LD:  ldelf:176 ELF (3ea87968-863c-41fe-8053-284ced758477) at 0x40029000
+I/TA: PSA Crypto API: SHA-256 example
+I/TA: assigned op to struc
+I/TA: allocated op
+I/TA: One-shot hash operation successful!
+I/TA: The SHA-256( 'Hello World!' ) is: 
+I/TA: 7f
+I/TA: 83
+I/TA: b1
+I/TA: 65
+I/TA: 7f
+I/TA: f1
+I/TA: fc
+I/TA: 53
+I/TA: b9
+I/TA: 2d
+I/TA: c1
+I/TA: 81
+I/TA: 48
+I/TA: a1
+I/TA: d6
+I/TA: 5d
+I/TA: fc
+I/TA: 2d
+I/TA: 4b
+I/TA: 1f
+I/TA: a3
+I/TA: d6
+I/TA: 77
+I/TA: 28
+I/TA: 4a
+I/TA: dd
+I/TA: d2
+I/TA: 00
+I/TA: 12
+I/TA: 6d
+I/TA: 90
+I/TA: 69
+I/TA: 
+D/TC:? 0 tee_ta_close_session:460 csess 0xf60c7ad0 id 4
+D/TC:? 0 tee_ta_close_session:479 Destroy session
+D/TC:? 0 destroy_context:318 Destroy TA ctx (0xf60c7a70)
+```
+</details>
+<details>
+<summary>Expected output of the optee_example_psa_mac</summary>
+
+```
+D/TC:? 0 tee_ta_init_pseudo_ta_session:303 Lookup pseudo TA 371c8c5f-efee-4d19-a418-afeec9631924
+D/TC:? 0 ldelf_load_ldelf:110 ldelf load address 0x40007000
+D/LD:  ldelf:142 Loading TS 371c8c5f-efee-4d19-a418-afeec9631924
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 371c8c5f-efee-4d19-a418-afeec9631924 (early TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 371c8c5f-efee-4d19-a418-afeec9631924 (Secure Storage TA)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0xffff0008
+D/TC:? 0 ldelf_syscall_open_bin:163 Lookup user TA ELF 371c8c5f-efee-4d19-a418-afeec9631924 (REE)
+D/TC:? 0 ldelf_syscall_open_bin:167 res=0
+D/LD:  ldelf:176 ELF (371c8c5f-efee-4d19-a418-afeec9631924) at 0x40064000
+I/TA: verify_key_size_by_type TEE_Type is: 2684354564
+I/TA: key_size is 256
+I/TA: msg1:
+I/TA:  6d
+I/TA:  73
+I/TA:  f6
+I/TA:  28
+I/TA:  de
+I/TA:  77
+I/TA:  6b
+I/TA:  f3
+I/TA:  4c
+I/TA:  94
+I/TA:  36
+I/TA:  7d
+I/TA:  73
+I/TA:  4b
+I/TA:  98
+I/TA:  2b
+I/TA:  07
+I/TA:  0d
+I/TA:  f9
+I/TA:  fa
+I/TA:  06
+I/TA:  d9
+I/TA:  64
+I/TA:  24
+I/TA:  84
+I/TA:  0e
+I/TA:  a5
+I/TA:  8a
+I/TA:  ad
+I/TA:  b5
+I/TA:  58
+I/TA:  f2
+I/TA: 
+I/TA: msg2:
+I/TA:  07
+I/TA:  82
+I/TA:  d6
+I/TA:  76
+I/TA:  f7
+I/TA:  f3
+I/TA:  c8
+I/TA:  c0
+I/TA:  04
+I/TA:  ad
+I/TA:  89
+I/TA:  96
+I/TA:  46
+I/TA:  71
+I/TA:  46
+I/TA:  65
+I/TA:  a7
+I/TA:  85
+I/TA:  35
+I/TA:  06
+I/TA:  55
+I/TA:  72
+I/TA:  b2
+I/TA:  ff
+I/TA:  f1
+I/TA:  26
+I/TA:  fd
+I/TA:  6d
+I/TA:  43
+I/TA:  bb
+I/TA:  9a
+I/TA:  5a
+I/TA: 
+D/TC:? 0 tee_ta_close_session:460 csess 0xf60c7ad0 id 4
+D/TC:? 0 tee_ta_close_session:479 Destroy session
+D/TC:? 0 destroy_context:318 Destroy TA ctx (0xf60c7a70)
+```
+</details>
+
 ```
 make run
 xtest
