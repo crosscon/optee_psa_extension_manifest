@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <remote name="tfo" fetch="https://git.trustedfirmware.org"/>
+    <remote name="u-boot" fetch="https://source.denx.de/u-boot"/>
+    <remote name="xenbits" fetch="https://xenbits.xen.org/"/>
+
+    <include name="common.xml"/>
+
+    <!--    this may need to be changed-->
+    <remove-project                name="linaro-swg/optee_examples.git" />
+    <remove-project                name="OP-TEE/optee_os.git" />
+    <project path="build" name="OP-TEE/build.git">
+        <linkfile src="qemu_v8.mk" dest="build/Makefile"/>
+    </project>
+    <remove-project name="OP-TEE/optee_test.git" />
+    <!-- after this commit some new attributes were added which would need a merge with optee_os    -->
+    <project name="lennard2000/optee_test"
+             path="optee_test" />
+
+    <!-- Misc gits -->
+    <project path="optee_rust" name="apache/incubator-teaclave-trustzone-sdk.git"
+             revision="ec3eefd9de68a18d5acee1a151e0d93f6898807f"/>
+    <project path="qemu" name="qemu/qemu.git" revision="refs/tags/v9.2.0" clone-depth="1"/>
+    <project path="hafnium" name="TF-Hafnium/hafnium.git" revision="a33eca9976006ac9b08ed4afe6260a2e8b9d2b3a"
+             clone-depth="1"/>
+    <project path="trusted-firmware-a" name="TrustedFirmware-A/trusted-firmware-a.git" revision="refs/tags/v2.12"
+             clone-depth="1"/>
+    <project path="mbedtls" name="Mbed-TLS/mbedtls.git" revision="refs/tags/mbedtls-3.6.0" clone-depth="1"/>
+    <project path="u-boot" name="u-boot.git" revision="refs/tags/v2023.07.02" remote="u-boot" clone-depth="1"/>
+    <project path="xen" name="git-http/xen.git" revision="refs/tags/RELEASE-4.19.0" clone-depth="1" remote="xenbits"/>
+    <project path="SCP-firmware" name="linaro-swg/SCP-firmware.git" revision="refs/tags/v2.15.0" clone-depth="1"/>
+
+    <project path="trusted-services" name="TS/trusted-services.git" revision="8881aaa3a9cb21e8b869e28c1a079f02fa46fd6c"
+             remote="tfo" clone-depth="1"/>
+    <project path="linux-arm-ffa-user" name="linaro-swg/linux-trusted-services.git" revision="refs/tags/debugfs-v5.0.2"
+             clone-depth="1"/>
+
+    <project path="optee_examples" name="lennard2000/optee_examples.git"/>
+    <project path="optee_os"          revision="syscalls"   name="lennard2000/optee_os.git" />
+
+</manifest>
