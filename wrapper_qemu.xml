@@ -30,6 +30,6 @@
     <project path="linux-arm-ffa-user" name="linaro-swg/linux-trusted-services.git" revision="refs/tags/debugfs-v5.0.2"
              clone-depth="1"/>
 
-    <project path="optee_examples" name="lennard2000/optee_examples.git"/>
+    <project path="optee_examples" name="crosscon/optee_examples.git"/>
 
 </manifest>

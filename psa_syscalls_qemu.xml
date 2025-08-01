@@ -14,7 +14,7 @@
     </project>
     <remove-project name="OP-TEE/optee_test.git" />
     <!-- after this commit some new attributes were added which would need a merge with optee_os    -->
-    <project name="lennard2000/optee_test"
+    <project name="crosscon/optee_test"
              path="optee_test" />
 
     <!-- Misc gits -->
@@ -35,7 +35,7 @@
     <project path="linux-arm-ffa-user" name="linaro-swg/linux-trusted-services.git" revision="refs/tags/debugfs-v5.0.2"
              clone-depth="1"/>
 
-    <project path="optee_examples" name="lennard2000/optee_examples.git"/>
-    <project path="optee_os"          revision="syscalls"   name="lennard2000/optee_os.git" />
+    <project path="optee_examples" name="crosscon/optee_examples.git"/>
+    <project path="optee_os"          revision="syscalls"   name="crosscon/optee_os.git" />
 
 </manifest>

@@ -87,7 +87,7 @@ curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod
 ```sh
 mkdir optee
 cd  optee
-repo init -u https://github.com/lennard2000/manifest.git -m wrapper_qemu.xml && repo sync -j10
+repo init -u https://github.com/crosscon/manifest.git -m wrapper_qemu.xml && repo sync -j10
 ```
 ### Download the OP-TEE Toolchains
 ```sh
@@ -484,7 +484,7 @@ curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod
 ```sh
 mkdir optee
 cd  optee
-repo init -u https://github.com/lennard2000/manifest.git -m psa_syscalls_qemu.xml && repo sync -j10
+repo init -u https://github.com/crosscon/manifest.git -m psa_syscalls_qemu.xml && repo sync -j10
 ```
 ### Download the OP-TEE Toolchains
 ```sh
